@@ -66,9 +66,20 @@ MasjidKu adalah platform manajemen keuangan masjid yang dirancang untuk memberik
 
 Kontribusi selalu terbuka! Silakan lakukan pull request atau buka issue untuk saran dan perbaikan.
 
-## 📄 Lisensi
+## 📄 Image
 
-Proyek ini berada di bawah lisensi MIT.
+<img width="1919" height="925" alt="image" src="https://github.com/user-attachments/assets/e03025af-4e1e-40d1-a243-175490e0b4d7" />
+<img width="1919" height="926" alt="image" src="https://github.com/user-attachments/assets/18fc2943-3bf8-468e-b34b-7d717d983ac4" />
+<img width="1919" height="924" alt="image" src="https://github.com/user-attachments/assets/fb2979b5-b393-4e20-b821-ce3e89de81be" />
+<img width="1919" height="930" alt="image" src="https://github.com/user-attachments/assets/a637bb6c-c894-4fbc-9573-14acc86fdaac" />
+<img width="1919" height="930" alt="image" src="https://github.com/user-attachments/assets/68727909-a753-4d4a-8eb3-211f6af9d8d7" />
+<img width="1919" height="931" alt="image" src="https://github.com/user-attachments/assets/dc6442a1-534f-48ca-80bc-b573fcd47050" />
+<img width="1919" height="928" alt="image" src="https://github.com/user-attachments/assets/e00a4dba-d816-431c-bcfc-353bd3624cb2" />
+<img width="1919" height="929" alt="image" src="https://github.com/user-attachments/assets/a713327e-97de-4a22-b0ef-d2f02bbf0bfb" />
+
+
+
+
 
 ---
 Dikembangkan dengan ❤️ untuk kemajuan manajemen masjid di Indonesia.
