@@ -59,7 +59,7 @@ export async function updateMosqueSettings(values: z.infer<typeof settingsSchema
             }
         })
 
-        revalidatePath("/dashboard") // Updates might affect dashboard name/stats
+        revalidatePath("/admin/dashboard") // Updates might affect dashboard name/stats
         return { success: true }
     } catch (error) {
         console.error("Update settings error:", error)
@@ -110,9 +110,9 @@ export async function resetDatabase(password: string) {
             }
         })
 
-        revalidatePath("/dashboard")
-        revalidatePath("/transactions")
-        revalidatePath("/reports")
+        revalidatePath("/admin/dashboard")
+        revalidatePath("/admin/transactions")
+        revalidatePath("/admin/reports")
         return { success: true }
     } catch (error) {
         console.error("Reset DB error:", error)

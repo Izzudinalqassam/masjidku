@@ -13,7 +13,8 @@ import {
     Settings,
     LogOut,
     Building2,
-    UserCircle
+    UserCircle,
+    CalendarDays
 } from "lucide-react"
 
 import { SheetClose } from "@/components/ui/sheet"
@@ -21,12 +22,13 @@ import { UserProfileDialog } from "@/components/user/user-profile-dialog"
 import { UserPermissions } from "@/lib/permissions"
 
 const navigation = [
-    { id: "dashboard", name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { id: "transactions", name: "Input Transaksi", href: "/transactions/new", icon: ArrowDownUp },
-    { id: "categories", name: "Kategori", href: "/categories", icon: Tags },
-    { id: "reports", name: "Laporan", href: "/reports", icon: BarChart3 },
-    { id: "users", name: "Pengguna", href: "/users", icon: Users, adminOnly: true },
-    { id: "settings", name: "Pengaturan", href: "/settings", icon: Settings },
+    { id: "dashboard", name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    { id: "transactions", name: "Input Transaksi", href: "/admin/transactions/new", icon: ArrowDownUp },
+    { id: "categories", name: "Kategori", href: "/admin/categories", icon: Tags },
+    { id: "events", name: "Kegiatan", href: "/admin/events", icon: CalendarDays, adminOnly: true },
+    { id: "reports", name: "Laporan", href: "/admin/reports", icon: BarChart3 },
+    { id: "users", name: "Pengguna", href: "/admin/users", icon: Users, adminOnly: true },
+    { id: "settings", name: "Pengaturan", href: "/admin/settings", icon: Settings },
 ]
 
 interface SidebarProps {

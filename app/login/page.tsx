@@ -47,7 +47,7 @@ export default function LoginPage() {
                 }
             } else if (result?.ok) {
                 toast.success("Login berhasil! Selamat datang kembali.")
-                router.push("/dashboard")
+                router.push("/admin/dashboard")
                 router.refresh()
             }
         } catch (err) {

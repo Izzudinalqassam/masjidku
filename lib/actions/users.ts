@@ -63,7 +63,7 @@ export async function createUser(values: z.infer<typeof userSchema>) {
             } as any
         })
 
-        revalidatePath("/users")
+        revalidatePath("/admin/users")
         return { success: true }
     } catch (error: any) {
         console.error("Create user error detailed:", error)
@@ -95,7 +95,7 @@ export async function updateUser(id: string, values: z.infer<typeof userSchema>)
             data: dataToUpdate
         } as any)
 
-        revalidatePath("/users")
+        revalidatePath("/admin/users")
         return { success: true }
     } catch (error) {
         console.error("Update user error:", error)
@@ -113,7 +113,7 @@ export async function deleteUser(id: string) {
 
     try {
         await prisma.user.delete({ where: { id } })
-        revalidatePath("/users")
+        revalidatePath("/admin/users")
         return { success: true }
     } catch (error) {
         return { error: "Gagal menghapus user" }

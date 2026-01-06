@@ -9,25 +9,25 @@ export default auth((req) => {
     const { pathname } = req.nextUrl
 
     // Public routes
-    const publicRoutes = ['/login']
-    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+    const publicRoutes = ['/login', '/']
+    const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith('/login'))
 
-    // Redirect logged-in users away from login page
+    // Redirect logged-in users away from login page to admin dashboard
     if (isLoggedIn && pathname === '/login') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+        return NextResponse.redirect(new URL('/admin/dashboard', req.url))
     }
 
-    // Redirect non-logged-in users to login
+    // Redirect non-logged-in users to login, except for public routes
     if (!isLoggedIn && !isPublicRoute) {
         return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    // Admin-only routes
-    const adminRoutes = ['/users', '/settings']
+    // Admin-only routes (Full system admin)
+    const adminRoutes = ['/admin/users', '/admin/settings']
     const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
 
     if (isAdminRoute && req.auth?.user?.role !== 'ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+        return NextResponse.redirect(new URL('/admin/dashboard', req.url))
     }
 
     return NextResponse.next()

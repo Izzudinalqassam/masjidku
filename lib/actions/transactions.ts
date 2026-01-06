@@ -41,8 +41,8 @@ export async function createTransaction(values: z.infer<typeof transactionSchema
             },
         })
 
-        revalidatePath("/dashboard")
-        revalidatePath("/transactions")
+        revalidatePath("/admin/dashboard")
+        revalidatePath("/admin/transactions")
 
         return { success: true }
     } catch (error) {

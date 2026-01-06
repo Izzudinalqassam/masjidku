@@ -9,7 +9,7 @@ export default async function SettingsPage() {
     const session = await auth()
 
     if (!session || session.user.role !== "ADMIN") {
-        redirect("/dashboard")
+        redirect("/admin/dashboard")
     }
 
     const mosque = await getMosqueSettings()

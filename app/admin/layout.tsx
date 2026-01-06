@@ -4,13 +4,18 @@ import { Sidebar } from "@/components/sidebar"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { Menu, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { redirect } from "next/navigation"
 
-export default async function DashboardLayout({
+export default async function AdminLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
     const session = await auth()
+
+    if (!session?.user) {
+        redirect("/login")
+    }
 
     // Fetch fresh user data if logged in
     let userData: any = session?.user
