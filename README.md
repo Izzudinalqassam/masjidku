@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MasjidKu - Sistem Manajemen Keuangan Masjid Modern
 
-## Getting Started
+MasjidKu adalah platform manajemen keuangan masjid yang dirancang untuk memberikan transparansi, efisiensi, dan kemudahan bagi pengurus masjid (Takmir/Bendahara) dalam mengelola dana umat.
 
-First, run the development server:
+## ✨ Fitur Utama
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Dashboard Real-time**: Visualisasi ringkasan saldo, pemasukan, dan pengeluaran harian/bulanan dengan grafik interaktif.
+- **Transaction Hub Modern**: 
+  - Input transaksi cepat melalui side-sheet.
+  - Riwayat transaksi terpisah untuk Pemasukan dan Pengeluaran.
+  - **Independent Pagination**: Navigasi halaman pemasukan tidak mengganggu posisi halaman pengeluaran.
+- **Filtering Lanjutan**: Filter data berdasarkan rentang tanggal kustom atau preset (Hari ini, Minggu ini, Bulan lalu, dsb).
+- **Manajemen Kategori**: Pengorganisasian transaksi dengan kategori yang dapat disesuaikan (Infaq, Shodaqoh, Operasional, Pembangunan, dll).
+- **Laporan & Ekspor**:
+  - Download laporan dalam format **PDF** dan **Excel**.
+  - Laporan disesuaikan otomatis dengan filter tanggal yang dipilih.
+- **Multi-user & Keamanan**: Dukungan peran Admin dan Bendahara dengan sistem autentikasi yang aman.
+- **Sepenuhnya Responsif**: Tampilan optimal baik di desktop maupun perangkat mobile.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: Next.js 15+ (App Router)
+- **Language**: TypeScript
+- **Database**: PostgreSQL with Prisma ORM
+- **Styling**: Tailwind CSS / Vanilla CSS
+- **Components**: Radix UI / Shadcn UI
+- **Auth**: NextAuth.js (v5 Beta)
+- **Charts**: Recharts
+- **Icons**: Lucide React
+- **Validation**: Zod + React Hook Form
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Instalasi & Persiapan Lokal
 
-## Learn More
+1. **Clone Repository**:
+   ```bash
+   git clone https://github.com/Izzudinalqassam/masjidku.git
+   cd masjidku
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Instal Dependensi**:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Konfigurasi Environment**:
+   Buat file `.env` di root direktori dan isi dengan variabel berikut:
+   ```env
+   DATABASE_URL="postgresql://user:password@localhost:5432/masjidku?schema=public"
+   AUTH_SECRET="your-generated-secret"
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Persiapan Database**:
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   npm run seed # Untuk data awal (User Admin & Kategori)
+   ```
 
-## Deploy on Vercel
+5. **Jalankan Aplikasi**:
+   ```bash
+   npm run dev
+   ```
+   Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 👥 Kontribusi
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Kontribusi selalu terbuka! Silakan lakukan pull request atau buka issue untuk saran dan perbaikan.
+
+## 📄 Lisensi
+
+Proyek ini berada di bawah lisensi MIT.
+
+---
+Dikembangkan dengan ❤️ untuk kemajuan manajemen masjid di Indonesia.

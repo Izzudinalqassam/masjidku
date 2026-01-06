@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  BENDAHARA
+  KETUA_DKM
+  VIEWER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  passwordHash  String        @map("password_hash")
+  fullName      String        @map("full_name")
+  role          UserRole      @default(VIEWER)
+  isActive      Boolean       @default(true) @map("is_active")
+  lastLoginAt   DateTime?     @map("last_login_at")
+  permissions   Json?         @map("permissions") // e.g. { transactions: { view: true, create: true } }
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  transactions  Transaction[]
+  auditLogs     AuditLog[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Mosque {
+  id             String         @id @default(uuid())
+  name           String
+  address        String?
+  phone          String?
+  email          String?
+  openingBalance Decimal        @default(0) @map("opening_balance") @db.Decimal(15, 2)
+  openingDate    DateTime       @map("opening_date") @db.Date
+  settings       Json           @default("{}")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  categories     Category[]
+  transactions   Transaction[]
+
+  @@map("mosque")
+}
+
+model Category {
+  id        String          @id @default(uuid())
+  mosqueId  String          @map("mosque_id")
+  name      String
+  type      TransactionType
+  color     String          @default("#10b981")
+  icon      String          @default("wallet")
+  parentId  String?         @map("parent_id")
+  isActive  Boolean         @default(true) @map("is_active")
+  createdAt DateTime        @default(now()) @map("created_at")
+
+  mosque       Mosque        @relation(fields: [mosqueId], references: [id], onDelete: Cascade)
+  parent       Category?     @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Category[]    @relation("CategoryHierarchy")
+  transactions Transaction[]
+
+  @@index([type])
+  @@index([mosqueId])
+  @@map("categories")
+}
+
+model Transaction {
+  id              String            @id @default(uuid())
+  mosqueId        String            @map("mosque_id")
+  categoryId      String            @map("category_id")
+  createdBy       String?           @map("created_by")
+  type            TransactionType
+  amount          Decimal           @db.Decimal(15, 2)
+  transactionDate DateTime          @map("transaction_date") @db.Date
+  description     String
+  referenceNumber String?           @map("reference_number")
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  mosque   Mosque             @relation(fields: [mosqueId], references: [id], onDelete: Cascade)
+  category Category           @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  user     User?              @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  files    TransactionFile[]
+
+  @@index([transactionDate(sort: Desc)])
+  @@index([type])
+  @@index([categoryId])
+  @@index([mosqueId])
+  @@map("transactions")
+}
+
+model TransactionFile {
+  id            String      @id @default(uuid())
+  transactionId String      @map("transaction_id")
+  fileName      String      @map("file_name")
+  fileUrl       String      @map("file_url")
+  fileType      String?     @map("file_type")
+  fileSize      Int?        @map("file_size")
+  uploadedAt    DateTime    @default(now()) @map("uploaded_at")
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@index([transactionId])
+  @@map("transaction_files")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  oldData    Json?    @map("old_data")
+  newData    Json?    @map("new_data")
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
