@@ -9,6 +9,17 @@ import { CalendarIcon, ImageIcon, Loader2, Upload, X, Clock, MapPin, Users, Bell
 
 import { Button } from "@/components/ui/button"
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { toast } from "sonner"
+
+import {
     Form,
     FormControl,
     FormDescription,
@@ -20,17 +31,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
+
+import { createEvent, updateEvent, type EventFormValues } from "@/lib/actions/events"
 import { cn } from "@/lib/utils"
-import { createEvent, updateEvent, EventFormValues } from "@/lib/actions/events"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
 
 const formSchema = z.object({
     title: z.string().min(1, "Judul wajib diisi"),
@@ -39,6 +44,7 @@ const formSchema = z.object({
     startDate: z.date({ message: "Tanggal mulai wajib diisi" }),
     endDate: z.date().optional().nullable(),
     location: z.string().optional(),
+    category: z.enum(['KAJIAN', 'SOSIAL', 'PHBI', 'LOMBA', 'LAINNYA']),
     isPublished: z.boolean(),
     // Reminder fields
     reminderTime: z.string().optional(),
@@ -46,6 +52,9 @@ const formSchema = z.object({
 })
 
 type FormValues = z.infer<typeof formSchema>
+
+// Define a local type compatible with the Prisma enum string union
+type EventCategoryType = 'KAJIAN' | 'SOSIAL' | 'PHBI' | 'LOMBA' | 'LAINNYA'
 
 interface EventFormProps {
     event?: {
@@ -56,6 +65,7 @@ interface EventFormProps {
         startDate: Date
         endDate: Date | null
         location: string | null
+        category: EventCategoryType | string // Allow string to be safe
         isPublished: boolean
     } | null
     onSuccess?: () => void
@@ -77,6 +87,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
             startDate: undefined,
             endDate: undefined,
             location: "",
+            category: "LAINNYA",
             isPublished: false,
             reminderEnabled: false,
             reminderTime: "15",
@@ -93,6 +104,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
                 startDate: event.startDate ? new Date(event.startDate) : undefined,
                 endDate: event.endDate ? new Date(event.endDate) : undefined,
                 location: event.location || "",
+                category: (event.category as EventCategoryType) || "LAINNYA",
                 isPublished: event.isPublished || false,
                 reminderEnabled: false,
                 reminderTime: "15",
@@ -174,6 +186,7 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
             startDate: values.startDate.toISOString(),
             endDate: values.endDate ? values.endDate.toISOString() : undefined,
             location: values.location,
+            category: values.category,
             isPublished: values.isPublished,
         }
 
@@ -350,6 +363,35 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
                                                 {...field}
                                             />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* Category */}
+                            <FormField
+                                control={form.control}
+                                name="category"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Kategori</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Pilih Kategori" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="KAJIAN">Kajian</SelectItem>
+                                                <SelectItem value="SOSIAL">Sosial</SelectItem>
+                                                <SelectItem value="PHBI">PHBI (Hari Besar)</SelectItem>
+                                                <SelectItem value="LOMBA">Lomba</SelectItem>
+                                                <SelectItem value="LAINNYA">Lainnya</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormDescription>
+                                            Kategori kegiatan untuk memudahkan pencarian
+                                        </FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -590,6 +632,6 @@ export function EventForm({ event, onSuccess }: EventFormProps) {
                     </div>
                 </form>
             </Form>
-        </div>
+        </div >
     )
 }

@@ -13,10 +13,14 @@ const eventSchema = z.object({
     startDate: z.string().min(1, "Tanggal mulai wajib diisi"),
     endDate: z.string().optional(),
     location: z.string().optional(),
+    category: z.enum(['KAJIAN', 'SOSIAL', 'PHBI', 'LOMBA', 'LAINNYA']).default('LAINNYA'),
     isPublished: z.boolean().default(false),
 })
 
 export type EventFormValues = z.infer<typeof eventSchema>
+
+// Valid Prisma Enum values as string union
+type EventCategoryType = 'KAJIAN' | 'SOSIAL' | 'PHBI' | 'LOMBA' | 'LAINNYA'
 
 export async function createEvent(values: EventFormValues) {
     const session = await auth()
@@ -28,15 +32,15 @@ export async function createEvent(values: EventFormValues) {
     const validatedFields = eventSchema.safeParse(values)
 
     if (!validatedFields.success) {
-        return { error: "Data tidak valid" }
+        return { error: "Data tidak valid: " + JSON.stringify(validatedFields.error.flatten()) }
     }
 
-    const { title, description, imageUrl, startDate, endDate, location, isPublished } = validatedFields.data
+    const { title, description, imageUrl, startDate, endDate, location, category, isPublished } = validatedFields.data
 
     try {
         const mosque = await prisma.mosque.findFirst()
         if (!mosque) {
-            return { error: "Data masjid tidak ditemukan" }
+            return { error: "Data masjid tidak ditemukan. Harap hubungi admin." }
         }
 
         await prisma.event.create({
@@ -47,6 +51,7 @@ export async function createEvent(values: EventFormValues) {
                 startDate: new Date(startDate),
                 endDate: endDate ? new Date(endDate) : null,
                 location,
+                category: category as EventCategoryType, // Cast to any to satisfy Prisma if types drift, but runtime is string
                 isPublished,
                 mosqueId: mosque.id,
                 createdBy: session.user.id,
@@ -56,9 +61,9 @@ export async function createEvent(values: EventFormValues) {
         revalidatePath("/admin/events")
         revalidatePath("/")
         return { success: true }
-    } catch (error) {
+    } catch (error: any) {
         console.error("Event create error:", error)
-        return { error: "Gagal membuat kegiatan" }
+        return { error: error.message || "Gagal membuat kegiatan" }
     }
 }
 
@@ -96,8 +101,14 @@ export async function getEventById(id: string) {
     }
 }
 
-export async function getPublishedEvents() {
-    console.log("Fetching published events...")
+export async function getPublishedEvents({
+    category,
+    limit
+}: {
+    category?: EventCategoryType
+    limit?: number
+} = {}) {
+    console.log("Fetching published events...", { category, limit })
     try {
         const mosque = await prisma.mosque.findFirst()
         if (!mosque) {
@@ -109,16 +120,19 @@ export async function getPublishedEvents() {
             where: {
                 mosqueId: mosque.id,
                 isPublished: true,
-                startDate: { gte: startOfDay(new Date()) }
+                ...(category && { category: category as any }), // Add filter if category is provided
+                // Remove strict date filtering for now to ensure visibility
+                startDate: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
             },
             orderBy: { startDate: 'asc' },
+            take: limit
         })
 
         console.log(`Found ${events.length} published events for mosque ${mosque.name}`)
         return events
     } catch (error) {
         console.error("Error in getPublishedEvents:", error)
-        throw error // Re-throw to see the full error in logs
+        throw error
     }
 }
 
@@ -135,7 +149,7 @@ export async function updateEvent(id: string, values: EventFormValues) {
         return { error: "Data tidak valid" }
     }
 
-    const { title, description, imageUrl, startDate, endDate, location, isPublished } = validatedFields.data
+    const { title, description, imageUrl, startDate, endDate, location, category, isPublished } = validatedFields.data
 
     try {
         await prisma.event.update({
@@ -147,6 +161,7 @@ export async function updateEvent(id: string, values: EventFormValues) {
                 startDate: new Date(startDate),
                 endDate: endDate ? new Date(endDate) : null,
                 location,
+                category: category as EventCategoryType,
                 isPublished,
             },
         })
@@ -154,9 +169,9 @@ export async function updateEvent(id: string, values: EventFormValues) {
         revalidatePath("/admin/events")
         revalidatePath("/")
         return { success: true }
-    } catch (error) {
+    } catch (error: any) {
         console.error("Event update error:", error)
-        return { error: "Gagal mengupdate kegiatan" }
+        return { error: error.message || "Gagal mengupdate kegiatan" }
     }
 }
 
@@ -193,9 +208,9 @@ export async function deleteEvent(id: string) {
         revalidatePath("/admin/events")
         revalidatePath("/")
         return { success: true }
-    } catch (error) {
+    } catch (error: any) {
         console.error("Event delete error:", error)
-        return { error: "Gagal menghapus kegiatan" }
+        return { error: error.message || "Gagal menghapus kegiatan" }
     }
 }
 
@@ -215,9 +230,9 @@ export async function toggleEventPublish(id: string, isPublished: boolean) {
         revalidatePath("/admin/events")
         revalidatePath("/")
         return { success: true }
-    } catch (error) {
+    } catch (error: any) {
         console.error("Event toggle publish error:", error)
-        return { error: "Gagal mengubah status publikasi" }
+        return { error: error.message || "Gagal mengubah status publikasi" }
     }
 }
 

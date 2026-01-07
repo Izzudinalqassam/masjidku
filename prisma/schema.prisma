@@ -144,21 +144,30 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+enum EventCategory {
+  KAJIAN
+  SOSIAL
+  PHBI
+  LOMBA
+  LAINNYA
+}
+
 model Event {
-  id          String    @id @default(uuid())
-  mosqueId    String    @map("mosque_id")
+  id          String        @id @default(uuid())
+  mosqueId    String        @map("mosque_id")
   title       String
-  description String?   @db.Text
-  imageUrl    String?   @map("image_url")
-  startDate   DateTime  @map("start_date")
-  endDate     DateTime? @map("end_date")
+  description String?       @db.Text
+  imageUrl    String?       @map("image_url")
+  startDate   DateTime      @map("start_date")
+  endDate     DateTime?     @map("end_date")
   location    String?
-  isPublished Boolean   @default(false) @map("is_published")
-  createdBy   String?   @map("created_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  views       Int       @default(0)
-  likes       Int       @default(0)
+  category    EventCategory @default(LAINNYA)
+  isPublished Boolean       @default(false) @map("is_published")
+  createdBy   String?       @map("created_by")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  views       Int           @default(0)
+  likes       Int           @default(0)
 
   mosque Mosque @relation(fields: [mosqueId], references: [id], onDelete: Cascade)
   user   User?  @relation(fields: [createdBy], references: [id], onDelete: SetNull)

@@ -24,7 +24,20 @@ export async function generateMetadata({ params }: EventPageProps): Promise<Meta
 
 export default async function EventPage({ params }: EventPageProps) {
     const { id } = await params
+
+    // DEBUG: Log to file
+    try {
+        const fs = await import('fs')
+        fs.appendFileSync('debug-events.log', `[${new Date().toISOString()}] Page params id: ${id}\n`)
+    } catch (e) { }
+
     const event = await getEventById(id)
+
+    // DEBUG: Log result
+    try {
+        const fs = await import('fs')
+        fs.appendFileSync('debug-events.log', `[${new Date().toISOString()}] Event found: ${!!event}\n`)
+    } catch (e) { }
 
     if (!event) {
         notFound()
