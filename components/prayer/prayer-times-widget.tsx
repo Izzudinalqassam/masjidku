@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { getPrayerTimesForDate, getTimeUntilPrayer, TodayPrayerTimes, PrayerTime } from "@/lib/prayer-times"
+import { DayNightIndicator, useDayNight } from "./day-night-indicator"
 
 interface PrayerTimesWidgetProps {
     className?: string
@@ -33,6 +34,7 @@ export function PrayerTimesWidget({ className, compact = false }: PrayerTimesWid
     const [soundEnabled, setSoundEnabled] = useState(true)
     const [notificationsEnabled, setNotificationsEnabled] = useState(false)
     const [locationEnabled, setLocationEnabled] = useState(false)
+    const { timePeriod } = useDayNight()
 
     useEffect(() => {
         loadPrayerTimes()
@@ -180,53 +182,74 @@ export function PrayerTimesWidget({ className, compact = false }: PrayerTimesWid
                         </h3>
                         <p className="text-sm text-white/60">{prayerTimes.date}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={toggleLocation}
-                            className={cn(
-                                "h-8 px-3 rounded-full",
-                                locationEnabled ? "text-emerald-400" : "text-white/60"
-                            )}
-                        >
-                            <MapPin className="w-3 h-3" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSoundEnabled(!soundEnabled)}
-                            className={cn(
-                                "h-8 px-3 rounded-full",
-                                soundEnabled ? "text-emerald-400" : "text-white/60"
-                            )}
-                        >
-                            {soundEnabled ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setNotificationsEnabled(!notificationsEnabled)}
-                            className={cn(
-                                "h-8 px-3 rounded-full",
-                                notificationsEnabled ? "text-emerald-400" : "text-white/60"
-                            )}
-                        >
-                            {notificationsEnabled ? <Bell className="w-3 h-3" /> : <BellOff className="w-3 h-3" />}
-                        </Button>
+                    <div className="flex items-center gap-3">
+                        <DayNightIndicator size={48} className="hidden md:flex" />
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={toggleLocation}
+                                className={cn(
+                                    "h-8 px-3 rounded-full",
+                                    locationEnabled ? "text-emerald-400" : "text-white/60"
+                                )}
+                            >
+                                <MapPin className="w-3 h-3" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setSoundEnabled(!soundEnabled)}
+                                className={cn(
+                                    "h-8 px-3 rounded-full",
+                                    soundEnabled ? "text-emerald-400" : "text-white/60"
+                                )}
+                            >
+                                {soundEnabled ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setNotificationsEnabled(!notificationsEnabled)}
+                                className={cn(
+                                    "h-8 px-3 rounded-full",
+                                    notificationsEnabled ? "text-emerald-400" : "text-white/60"
+                                )}
+                            >
+                                {notificationsEnabled ? <Bell className="w-3 h-3" /> : <BellOff className="w-3 h-3" />}
+                            </Button>
+                        </div>
                     </div>
                 </div>
+                
+                {/* Mobile Day/Night Indicator */}
+                <div className="md:hidden flex justify-center mb-2">
+                    <DayNightIndicator size={40} />
+                </div>
 
-                {/* Next Prayer Highlight */}
+                {/* Next Prayer Highlight with Time Period */}
                 {prayerTimes.nextPrayer && (
-                    <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-2xl p-4 border border-emerald-500/30">
+                    <div className={cn(
+                        "rounded-2xl p-4 border transition-all duration-500",
+                        timePeriod === 'malam' 
+                            ? "bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-blue-500/30"
+                            : "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-500/30"
+                    )}>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-emerald-500/30 rounded-full flex items-center justify-center">
+                                <div className={cn(
+                                    "w-10 h-10 rounded-full flex items-center justify-center",
+                                    timePeriod === 'malam' ? "bg-blue-500/30" : "bg-emerald-500/30"
+                                )}>
                                     {getPrayerIcon(prayerTimes.nextPrayer.name)}
                                 </div>
                                 <div>
-                                    <p className="text-sm text-emerald-200">Sholat Berikutnya</p>
+                                    <p className={cn(
+                                        "text-sm",
+                                        timePeriod === 'malam' ? "text-blue-200" : "text-emerald-200"
+                                    )}>
+                                        {timePeriod === 'malam' ? `Selamat ${timePeriod}` : 'Sholat Berikutnya'}
+                                    </p>
                                     <p className="text-lg font-bold text-white">
                                         {prayerTimes.nextPrayer.name}
                                     </p>
@@ -236,7 +259,12 @@ export function PrayerTimesWidget({ className, compact = false }: PrayerTimesWid
                                 <p className="text-2xl font-bold text-white">
                                     {prayerTimes.nextPrayer.time}
                                 </p>
-                                <Badge className="bg-emerald-500/20 text-emerald-200 border-emerald-500/30 text-xs">
+                                <Badge className={cn(
+                                    "text-xs",
+                                    timePeriod === 'malam'
+                                        ? "bg-blue-500/20 text-blue-200 border-blue-500/30"
+                                        : "bg-emerald-500/20 text-emerald-200 border-emerald-500/30"
+                                )}>
                                     {getTimeUntilPrayer(prayerTimes.nextPrayer.time)}
                                 </Badge>
                             </div>
@@ -309,6 +337,13 @@ export function PrayerTimesWidget({ className, compact = false }: PrayerTimesWid
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
+                        <div className={cn(
+                            "flex items-center gap-1 capitalize",
+                            timePeriod === 'malam' ? "text-blue-400" : "text-amber-400"
+                        )}>
+                            {timePeriod === 'malam' ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
+                            <span>{timePeriod}</span>
+                        </div>
                         <div className="flex items-center gap-1">
                             {soundEnabled ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
                             <span>Adzan</span>
