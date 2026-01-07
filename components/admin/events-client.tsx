@@ -47,6 +47,7 @@ interface Event {
     startDate: Date
     endDate: Date | null
     location: string | null
+    category: string
     isPublished: boolean
     createdAt: Date
     user: { fullName: string } | null

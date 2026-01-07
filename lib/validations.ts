@@ -8,7 +8,7 @@ export const transactionSchema = z.object({
     transactionDate: z.string().or(z.date()),
     description: z.string().min(3, 'Deskripsi minimal 3 karakter'),
     referenceNumber: z.string().optional(),
-    metadata: z.record(z.any()).optional(),
+    metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export const transactionUpdateSchema = transactionSchema.partial()

@@ -35,7 +35,7 @@ export async function updateUserProfile(values: z.infer<typeof userProfileSchema
 
     const validatedFields = userProfileSchema.safeParse(values)
     if (!validatedFields.success) {
-        return { error: validatedFields.error.errors[0].message }
+        return { error: validatedFields.error.issues[0].message }
     }
 
     const { fullName, currentPassword, newPassword } = validatedFields.data

@@ -10,9 +10,9 @@ export default async function Home() {
 
   return (
     <LandingPage
-      events={events as any}
-      mosqueName={mosque?.name || "Masjid Al-Ikhlas"}
-      mosqueAddress={mosque?.address || ""}
+      events={events}
+      mosqueName={mosque?.name ?? "Masjid Al-Ikhlas"}
+      mosqueAddress={mosque?.address ?? ""}
     />
   )
 }

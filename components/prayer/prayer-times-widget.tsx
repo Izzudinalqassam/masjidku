@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { getPrayerTimesForDate, getTimeUntilPrayer, getCurrentLocation, TodayPrayerTimes, PrayerTime } from "@/lib/prayer-times"
+import { getPrayerTimesForDate, getTimeUntilPrayer, TodayPrayerTimes, PrayerTime } from "@/lib/prayer-times"
 
 interface PrayerTimesWidgetProps {
     className?: string
@@ -52,8 +52,7 @@ export function PrayerTimesWidget({ className, compact = false }: PrayerTimesWid
     const loadPrayerTimes = async () => {
         try {
             setLoading(true)
-            const coordinates = locationEnabled ? await getCurrentLocation() : undefined
-            const times = getPrayerTimesForDate(new Date(), coordinates)
+            const times = getPrayerTimesForDate(new Date())
             setPrayerTimes(times)
             
             // Check if next prayer is within 1 minute
@@ -100,21 +99,10 @@ export function PrayerTimesWidget({ className, compact = false }: PrayerTimesWid
         }
     }
 
-    const toggleLocation = async () => {
-        if (!locationEnabled) {
-            try {
-                await getCurrentLocation()
-                setLocationEnabled(true)
-                toast.success('Lokasi berhasil diaktifkan')
-                await loadPrayerTimes()
-            } catch (error) {
-                toast.error('Gagal mendapatkan lokasi')
-            }
-        } else {
-            setLocationEnabled(false)
-            toast.success('Menggunakan lokasi default')
-            await loadPrayerTimes()
-        }
+    const toggleLocation = () => {
+        setLocationEnabled(!locationEnabled)
+        toast.info('Fitur lokasi dinonaktifkan sementara')
+        loadPrayerTimes()
     }
 
     const getPrayerIcon = (name: string) => {

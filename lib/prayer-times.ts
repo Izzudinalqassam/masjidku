@@ -1,28 +1,4 @@
-import { PrayerTimes, PrayerTimesCoordinates, CalculationMethod } from 'adhan'
-
-// Jakarta coordinates (default)
-const DEFAULT_COORDINATES: PrayerTimesCoordinates = {
-    latitude: -6.2088,
-    longitude: 106.8456
-}
-
-// Prayer times configuration
-export const PRAYER_CONFIG = {
-  coordinates: DEFAULT_COORDINATES,
-  method: CalculationMethod.MuslimWorldLeague,
-  madhab: 'Shafi' as const,
-  highLatitudeRule: 'TwilightAngle' as const,
-  polarCircleResolution: 'Unresolved' as const,
-  adjustments: {
-    fajr: 0,
-    dhuhr: 0,
-    asr: 0,
-    maghrib: 0,
-    isha: 0
-  }
-}
-
-// Prayer names in Indonesian
+// Simple prayer times (temporary - without external library)
 export const PRAYER_NAMES = {
   fajr: 'Subuh',
   dhuhr: 'Dzuhur',
@@ -47,31 +23,26 @@ export interface TodayPrayerTimes {
   currentPrayer: PrayerTime | null
 }
 
-export function getPrayerTimesForDate(date: Date = new Date(), coordinates: PrayerTimesCoordinates = DEFAULT_COORDINATES): TodayPrayerTimes {
-  const prayerTimes = new PrayerTimes({
-    ...PRAYER_CONFIG,
-    coordinates
-  })
+// Default prayer times (for Jakarta)
+const DEFAULT_PRAYER_TIMES: PrayerTime[] = [
+  { name: PRAYER_NAMES.fajr, time: '04:30', next: false, elapsed: false, hours: 4, minutes: 30 },
+  { name: PRAYER_NAMES.dhuhr, time: '12:00', next: false, elapsed: false, hours: 12, minutes: 0 },
+  { name: PRAYER_NAMES.asr, time: '15:15', next: false, elapsed: false, hours: 15, minutes: 15 },
+  { name: PRAYER_NAMES.maghrib, time: '18:10', next: false, elapsed: false, hours: 18, minutes: 10 },
+  { name: PRAYER_NAMES.isha, time: '19:25', next: false, elapsed: false, hours: 19, minutes: 25 }
+]
 
-  const times = prayerTimes.timesForDate(date)
+export function getPrayerTimesForDate(date: Date = new Date()): TodayPrayerTimes {
+  const prayers = [...DEFAULT_PRAYER_TIMES].map(p => ({ ...p }))
   
-  const prayers: PrayerTime[] = [
-    { name: PRAYER_NAMES.fajr, time: times.fajr, next: false, elapsed: false, hours: 0, minutes: 0 },
-    { name: PRAYER_NAMES.dhuhr, time: times.dhuhr, next: false, elapsed: false, hours: 0, minutes: 0 },
-    { name: PRAYER_NAMES.asr, time: times.asr, next: false, elapsed: false, hours: 0, minutes: 0 },
-    { name: PRAYER_NAMES.maghrib, time: times.maghrib, next: false, elapsed: false, hours: 0, minutes: 0 },
-    { name: PRAYER_NAMES.isha, time: times.isha, next: false, elapsed: false, hours: 0, minutes: 0 }
-  ]
-
   // Parse times and determine current/next prayer
   const now = new Date()
   const currentTime = now.getHours() * 60 + now.getMinutes()
   
   prayers.forEach(prayer => {
-    const [hours, minutes] = prayer.time.split(':').map(Number)
-    prayer.hours = hours
-    prayer.minutes = minutes
-    const prayerTime = hours * 60 + minutes
+    prayer.hours = prayer.hours
+    prayer.minutes = prayer.minutes
+    const prayerTime = prayer.hours * 60 + prayer.minutes
     prayer.elapsed = prayerTime < currentTime
   })
 
@@ -128,31 +99,4 @@ export function getTimeUntilPrayer(prayerTime: string): string {
   } else {
     return `${diffMinutes} menit lagi`
   }
-}
-
-export function getCurrentLocation(): Promise<PrayerTimesCoordinates> {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      resolve(DEFAULT_COORDINATES)
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        })
-      },
-      (error) => {
-        console.warn('Geolocation error:', error)
-        resolve(DEFAULT_COORDINATES)
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000 // 5 minutes
-      }
-    )
-  })
 }
