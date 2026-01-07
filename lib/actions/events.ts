@@ -79,7 +79,7 @@ export async function getEventById(id: string) {
     try {
         const event = await prisma.event.findUnique({
             where: { id },
-            include: { 
+            include: {
                 mosque: {
                     select: {
                         id: true,
@@ -168,6 +168,27 @@ export async function deleteEvent(id: string) {
     }
 
     try {
+        const event = await prisma.event.findUnique({
+            where: { id },
+            select: { imageUrl: true }
+        })
+
+        if (event?.imageUrl) {
+            const fs = await import('fs/promises')
+            const path = await import('path')
+
+            // Remove /uploads/ prefix to get filename
+            const filename = event.imageUrl.replace('/uploads/', '')
+            const filepath = path.join(process.cwd(), 'public', 'uploads', filename)
+
+            try {
+                await fs.unlink(filepath)
+            } catch (err) {
+                console.error("Failed to delete image file:", err)
+                // Continue with event deletion even if file delete fails
+            }
+        }
+
         await prisma.event.delete({ where: { id } })
         revalidatePath("/admin/events")
         revalidatePath("/")
@@ -197,5 +218,33 @@ export async function toggleEventPublish(id: string, isPublished: boolean) {
     } catch (error) {
         console.error("Event toggle publish error:", error)
         return { error: "Gagal mengubah status publikasi" }
+    }
+}
+
+export async function incrementEventView(id: string) {
+    try {
+        await prisma.event.update({
+            where: { id },
+            data: { views: { increment: 1 } }
+        })
+        revalidatePath(`/events/${id}`)
+        return { success: true }
+    } catch (error) {
+        console.error("Increment view error:", error)
+        return { success: false }
+    }
+}
+
+export async function incrementEventLike(id: string) {
+    try {
+        await prisma.event.update({
+            where: { id },
+            data: { likes: { increment: 1 } }
+        })
+        revalidatePath(`/events/${id}`)
+        return { success: true }
+    } catch (error) {
+        console.error("Increment like error:", error)
+        return { success: false }
     }
 }

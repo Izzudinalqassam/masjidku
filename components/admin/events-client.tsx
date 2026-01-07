@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
-import { Plus, Pencil, Trash2, Eye, EyeOff, CalendarDays, MapPin, ImageIcon } from "lucide-react"
+import { Plus, Pencil, Trash2, Eye, EyeOff, CalendarDays, MapPin, ImageIcon, Clock } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -122,6 +122,47 @@ export function EventsClient({ events }: EventsClientProps) {
                         />
                     </DialogContent>
                 </Dialog>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 border border-emerald-100">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
+                            <CalendarDays className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">Total Kegiatan</p>
+                            <p className="text-2xl font-bold text-gray-900">{events.length}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                            <Clock className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">Aktif</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                                {events.filter(e => e.isPublished).length}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
+                            <Eye className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">Draf</p>
+                            <p className="text-2xl font-bold text-gray-900">
+                                {events.filter(e => !e.isPublished).length}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Events Table */}

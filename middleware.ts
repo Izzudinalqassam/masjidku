@@ -10,7 +10,7 @@ export default auth((req) => {
 
     // Public routes
     const publicRoutes = ['/login', '/']
-    const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith('/login'))
+    const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith('/login') || pathname.startsWith('/events'))
 
     // Redirect logged-in users away from login page to admin dashboard
     if (isLoggedIn && pathname === '/login') {
