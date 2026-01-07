@@ -22,8 +22,12 @@ import {
     Target,
     Award,
     Zap,
+    Star,
+    Menu,
+    X as Close,
 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 interface Event {
@@ -109,6 +113,7 @@ export function LandingPage({ events, mosqueName, mosqueAddress }: LandingPagePr
     const [mounted, setMounted] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("ALL")
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
     useEffect(() => {
         setMounted(true)
@@ -146,6 +151,39 @@ export function LandingPage({ events, mosqueName, mosqueAddress }: LandingPagePr
         }
     }, [events])
 
+    // Generate particles once to avoid hydration mismatch
+    const particles = useMemo(() => {
+        return [...Array(50)].map((_, i) => ({
+            id: i,
+            top: Math.random() * 100,
+            left: Math.random() * 100,
+            width: 1 + Math.random() * 3,
+            height: 1 + Math.random() * 3,
+            opacity: 0.1 + Math.random() * 0.2,
+            animationDelay: Math.random() * 5,
+            animationDuration: 3 + Math.random() * 4
+        }))
+    }, [])
+
+    // Debug: Log events data when mounted
+    useEffect(() => {
+        if (events.length > 0) {
+            console.log("=== EVENTS DATA DEBUG ===")
+            events.forEach((event, idx) => {
+                console.log(`Event ${idx + 1}:`, {
+                    id: event.id,
+                    title: event.title,
+                    imageUrl: event.imageUrl,
+                    imageUrlType: typeof event.imageUrl,
+                    imageUrlLength: event.imageUrl?.length
+                })
+            })
+            console.log("==========================")
+        } else {
+            console.log("No events found")
+        }
+    }, [events])
+
     return (
         <div className="min-h-screen bg-background text-foreground overflow-hidden font-sans transition-colors duration-300">
             {/* Animated Background Elements (Subtle) */}
@@ -172,70 +210,362 @@ export function LandingPage({ events, mosqueName, mosqueAddress }: LandingPagePr
 
             {/* Header */}
             <header className={cn(
-                "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
-                scrollY > 10 ? "bg-background/80 backdrop-blur-md border-border shadow-sm" : "bg-transparent border-transparent"
+                "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+                scrollY > 10 
+                    ? "bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-xl shadow-black/5" 
+                    : "bg-transparent border-transparent"
             )}>
-                <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                            <Building2 className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-base font-bold tracking-tight text-foreground">{mosqueName}</h1>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Portal Informasi</p>
+                {/* Islamic Pattern Decorations */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-20 h-32 opacity-5">
+                        <svg viewBox="0 0 80 128" className="text-emerald-500">
+                            <path d="M40,0 L40,128 M20,64 L60,64 M10,32 L30,96 M50,96 L70,32" stroke="currentColor" strokeWidth="1" />
+                        </svg>
+                    </div>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-20 h-32 opacity-5 rotate-180">
+                        <svg viewBox="0 0 80 128" className="text-emerald-500">
+                            <path d="M40,0 L40,128 M20,64 L60,64 M10,32 L30,96 M50,96 L70,32" stroke="currentColor" strokeWidth="1" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div className="container mx-auto px-4 md:px-6">
+                    <div className="flex items-center justify-between py-3 md:py-4">
+                        {/* Logo Section */}
+                        <Link href="/" className="flex items-center gap-3 group">
+                            <div className={cn(
+                                "relative flex items-center justify-center transition-all duration-300",
+                                scrollY > 10 ? "w-10 h-10" : "w-12 h-12"
+                            )}>
+                                {/* Glow Effect */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity animate-pulse" />
+                                
+                                {/* Main Logo */}
+                                <div className="relative bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/40 transition-all duration-300 group-hover:scale-105">
+                                    <Building2 className={cn(
+                                        "text-white transition-all duration-300",
+                                        scrollY > 10 ? "w-5 h-5" : "w-6 h-6"
+                                    )} />
+                                </div>
+
+                                {/* Animated Star Decoration */}
+                                <div className="absolute -top-1 -right-1 w-4 h-4 text-amber-400 animate-spin-slow opacity-80">
+                                    <Star fill="currentColor" />
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col">
+                                <h1 className={cn(
+                                    "font-bold tracking-tight text-foreground transition-all duration-300",
+                                    scrollY > 10 ? "text-sm md:text-base" : "text-base md:text-lg"
+                                )}>
+                                    {mosqueName}
+                                </h1>
+                                <div className="flex items-center gap-2">
+                                    <span className={cn(
+                                        "text-emerald-600 dark:text-emerald-400 font-serif italic transition-all duration-300",
+                                        scrollY > 10 ? "text-[10px]" : "text-xs"
+                                    )}>
+                                        المَسْجِد
+                                    </span>
+                                    <span className="text-muted-foreground/50 text-xs">|</span>
+                                    <p className={cn(
+                                        "text-muted-foreground uppercase tracking-wider font-medium transition-all duration-300",
+                                        scrollY > 10 ? "text-[8px] md:text-[10px]" : "text-[10px] md:text-xs"
+                                    )}>
+                                        Portal Informasi
+                                    </p>
+                                </div>
+                            </div>
+                        </Link>
+
+                        {/* Right Section */}
+                        <div className="flex items-center gap-2 md:gap-3">
+                            {/* Islamic Greeting Badge (Desktop) */}
+                            <div className={cn(
+                                "hidden md:flex items-center gap-2 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-full px-3 py-1.5 transition-all duration-300",
+                                scrollY > 10 ? "opacity-100" : "opacity-90"
+                            )}>
+                                <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400 animate-pulse" />
+                                <span className="text-xs font-medium text-emerald-800 dark:text-emerald-200">السَّلَامُ عَلَيْكُم</span>
+                            </div>
+
+                            {/* Live Clock */}
+                            <div className={cn(
+                                "flex items-center gap-2 bg-gradient-to-r from-emerald-500/5 to-teal-500/5 backdrop-blur-sm rounded-full transition-all duration-300 border",
+                                scrollY > 10 
+                                    ? "border-border px-3 py-1.5 shadow-sm" 
+                                    : "border-emerald-500/20 px-4 py-2"
+                            )}>
+                                <Clock className={cn(
+                                    "text-emerald-600 dark:text-emerald-400 transition-all duration-300",
+                                    scrollY > 10 ? "w-3.5 h-3.5" : "w-4 h-4"
+                                )} />
+                                <span className={cn(
+                                    "font-mono font-bold text-foreground tabular-nums transition-all duration-300",
+                                    scrollY > 10 ? "text-xs" : "text-sm"
+                                )}>
+                                    {mounted ? format(currentTime, "HH:mm:ss") : "--:--:--"}
+                                </span>
+                            </div>
+
+                            {/* Theme Toggle */}
+                            <button
+                                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                                className={cn(
+                                    "relative flex items-center justify-center rounded-full transition-all duration-300 bg-gradient-to-br",
+                                    theme === "dark"
+                                        ? "from-slate-800 to-slate-900 border border-slate-700 hover:border-slate-600"
+                                        : "from-emerald-50 to-teal-50 border border-emerald-200 hover:border-emerald-300"
+                                )}
+                                style={{
+                                    width: scrollY > 10 ? "36px" : "42px",
+                                    height: scrollY > 10 ? "36px" : "42px"
+                                }}
+                                aria-label="Toggle theme"
+                            >
+                                <Sun className={cn(
+                                    "h-5 w-5 text-amber-600 dark:text-amber-400 transition-all duration-500",
+                                    theme === "dark" ? "rotate-0 scale-100" : "rotate-90 scale-0"
+                                )} />
+                                <Moon className={cn(
+                                    "absolute h-5 w-5 text-blue-600 dark:text-blue-400 transition-all duration-500",
+                                    theme === "dark" ? "rotate-90 scale-0" : "rotate-0 scale-100"
+                                )} />
+                            </button>
+
+                            {/* Mobile Menu Toggle */}
+                            <button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className={cn(
+                                    "md:hidden flex items-center justify-center rounded-full transition-all duration-300",
+                                    theme === "dark"
+                                        ? "bg-slate-800 border border-slate-700 text-slate-300"
+                                        : "bg-emerald-50 border border-emerald-200 text-emerald-700",
+                                    mobileMenuOpen && "bg-emerald-600 border-emerald-600 text-white"
+                                )}
+                            style={{
+                                width: scrollY > 10 ? "36px" : "42px",
+                                height: scrollY > 10 ? "36px" : "42px"
+                            }}
+                            aria-label="Toggle menu"
+                        >
+                            {mobileMenuOpen ? <Close className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                        </button>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        {/* Theme Toggle */}
-                        <button
-                            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                            className="w-9 h-9 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
-                            aria-label="Toggle theme"
-                        >
-                            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                        </button>
+                    {/* Mobile Menu */}
+                    <div className={cn(
+                        "md:hidden overflow-hidden transition-all duration-300 border-t border-border/50",
+                        mobileMenuOpen ? "max-h-96 pb-4" : "max-h-0"
+                    )}>
+                        <div className="pt-4 space-y-2">
+                            {/* Mobile Islamic Greeting */}
+                            <div className="flex items-center justify-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+                                <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">السَّلَامُ عَلَيْكُم</span>
+                            </div>
 
-                        {/* Live Clock */}
-                        <div className="hidden sm:flex items-center gap-2 bg-secondary/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-border shadow-sm">
-                            <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                            <span className="text-xs font-mono font-bold text-foreground">
-                                {mounted ? format(currentTime, "HH:mm:ss") : "--:--:--"}
-                            </span>
+                            {/* Mobile Quick Links */}
+                            <div className="grid grid-cols-2 gap-2">
+                                <button
+                                    onClick={() => {
+                                        window.scrollTo({ top: 300, behavior: 'smooth' })
+                                        setMobileMenuOpen(false)
+                                    }}
+                                    className="flex items-center justify-center gap-2 bg-secondary/50 border border-border rounded-xl px-4 py-3 hover:bg-secondary transition-colors"
+                                >
+                                    <CalendarDays className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                    <span className="text-sm font-medium">Jadwal</span>
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        window.scrollTo({ top: 800, behavior: 'smooth' })
+                                        setMobileMenuOpen(false)
+                                    }}
+                                    className="flex items-center justify-center gap-2 bg-secondary/50 border border-border rounded-xl px-4 py-3 hover:bg-secondary transition-colors"
+                                >
+                                    <Star className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                    <span className="text-sm font-medium">Kegiatan</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
 
+            {/* Navbar Animation Styles */}
+            <style>{`
+                @keyframes spin-slow {
+                    0%, 100% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+            `}</style>
+
             {/* Hero Section */}
-            <section className="relative z-10 pt-32 pb-20 md:pt-40 md:pb-32">
-                <div className="container mx-auto px-6">
-                    <div className="max-w-3xl mx-auto text-center">
-                        <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-8 animate-fade-in-up">
-                            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                            <span className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Selamat Datang Jamaah</span>
+            <section className="relative z-10 pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
+                {/* Subtle Particle Background */}
+                <div className="absolute inset-0 pointer-events-none">
+                    {mounted && particles.map((particle) => (
+                        <div
+                            key={particle.id}
+                            className="absolute rounded-full animate-float-particle"
+                            style={{
+                                top: `${particle.top}%`,
+                                left: `${particle.left}%`,
+                                width: `${particle.width}px`,
+                                height: `${particle.height}px`,
+                                background: `rgba(16, 185, 129, ${particle.opacity})`,
+                                animationDelay: `${particle.animationDelay}s`,
+                                animationDuration: `${particle.animationDuration}s`
+                            }}
+                        />
+                    ))}
+                </div>
+
+                {/* Animated Crescent Moon */}
+                <div className="absolute top-20 right-10 md:top-32 md:right-20 pointer-events-none animate-float" style={{ animationDelay: '0.5s' }}>
+                    <svg width="120" height="120" viewBox="0 0 120 120" className="text-emerald-400/30 dark:text-emerald-400/20">
+                        <path
+                            d="M60 10 C85 10 100 35 100 60 C100 85 85 110 60 110 C40 110 25 85 25 60 C25 35 40 10 60 10 C55 10 50 15 50 25 C50 35 55 40 60 40 C65 40 70 35 70 25 C70 15 65 10 60 10 Z"
+                            fill="currentColor"
+                            className="animate-glow"
+                        />
+                    </svg>
+                </div>
+
+                <div className="container mx-auto px-6 relative">
+                    <div className="max-w-4xl mx-auto text-center">
+                        {/* Islamic Greeting with Arabic-Style Typography */}
+                        <div className="mb-8 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+                            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/10 border border-emerald-500/20 rounded-full px-6 py-2.5 shadow-lg shadow-emerald-500/10">
+                                <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-200 tracking-wide">أهلاً وسهلاً</span>
+                                <span className="mx-2 text-emerald-400">|</span>
+                                <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Selamat Datang Jamaah</span>
+                            </div>
                         </div>
 
-                        <h2 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-foreground animate-fade-in-up" style={{ animationDelay: '100ms' }}>
-                            Memakmurkan Masjid,<br />
-                            <span className="text-emerald-600 dark:text-emerald-400">Membangun Umat</span>
-                        </h2>
+                        {/* Main Heading with Arabic-Calligraphy Style */}
+                        <div className="relative mb-6">
+                            <div className="absolute -top-8 -left-8 w-16 h-16 border-t-2 border-l-2 border-emerald-500/30 rounded-tl-3xl" />
+                            <div className="absolute -bottom-8 -right-8 w-16 h-16 border-b-2 border-r-2 border-emerald-500/30 rounded-br-3xl" />
+                            
+                            <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-4 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+                                <span className="inline-block bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-clip-text text-transparent bg-300% animate-gradient">
+                                    Memakmurkan
+                                </span>
+                                <br />
+                                <span className="inline-block relative">
+                                    <span className="relative z-10 bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent bg-300% animate-gradient">
+                                        Masjid
+                                    </span>
+                                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-emerald-400/50" viewBox="0 0 200 10" preserveAspectRatio="none">
+                                        <path d="M0,5 Q50,0 100,5 T200,5" fill="none" stroke="currentColor" strokeWidth="2" className="animate-draw" />
+                                    </svg>
+                                </span>
+                            </h2>
 
-                        <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+                            {/* Subtitle with Ornament */}
+                            <div className="flex items-center justify-center gap-4 mb-8 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+                                <div className="h-px w-16 bg-gradient-to-r from-transparent via-emerald-500/50 to-emerald-500/50" />
+                                <span className="text-2xl md:text-3xl font-light text-emerald-600 dark:text-emerald-400">
+                                    المَسْجِد
+                                </span>
+                                <div className="h-px w-16 bg-gradient-to-l from-transparent via-emerald-500/50 to-emerald-500/50" />
+                            </div>
+
+                            <h3 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+                                <span className="bg-gradient-to-r from-teal-600 via-emerald-500 to-teal-600 bg-clip-text text-transparent bg-300% animate-gradient">
+                                    Membangun Umat
+                                </span>
+                            </h3>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '500ms' }}>
                             Pusat informasi kegiatan dan jadwal ibadah. Mari bersama-sama
                             memakmurkan rumah Allah dengan berbagai aktivitas positif.
                         </p>
 
+                        {/* Bismillah */}
+                        <div className="mb-8 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
+                            <p className="text-emerald-600/60 dark:text-emerald-400/60 text-lg md:text-xl font-serif italic">
+                                بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
+                            </p>
+                            <p className="text-emerald-500/80 dark:text-emerald-400/80 text-sm mt-2 font-medium">
+                                Dengan menyebut nama Allah Yang Maha Pengasih lagi Maha Penyayang
+                            </p>
+                        </div>
+
+                        {/* Location */}
                         {mosqueAddress && (
-                            <div className="inline-flex items-center gap-2 text-muted-foreground animate-fade-in-up" style={{ animationDelay: '300ms' }}>
-                                <MapPin className="w-4 h-4 text-emerald-500" />
-                                <span className="text-sm font-medium">{mosqueAddress}</span>
+                            <div className="inline-flex items-center gap-3 bg-emerald-500/5 border border-emerald-500/20 rounded-full px-6 py-3 animate-fade-in-up hover:bg-emerald-500/10 transition-colors" style={{ animationDelay: '700ms' }}>
+                                <div className="p-2 bg-emerald-500/10 rounded-full">
+                                    <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                </div>
+                                <span className="text-sm font-semibold text-foreground">{mosqueAddress}</span>
                             </div>
                         )}
+
+                        {/* Decorative Ornaments */}
+                        <div className="absolute top-1/2 left-4 md:left-10 -translate-y-1/2 pointer-events-none opacity-20">
+                            <svg width="60" height="200" viewBox="0 0 60 200" className="text-emerald-500">
+                                <path d="M30,0 L30,200 M0,100 L60,100 M15,50 L45,150 M15,150 L45,50" stroke="currentColor" strokeWidth="1" className="animate-pulse" />
+                            </svg>
+                        </div>
+                        <div className="absolute top-1/2 right-4 md:right-10 -translate-y-1/2 pointer-events-none opacity-20">
+                            <svg width="60" height="200" viewBox="0 0 60 200" className="text-emerald-500">
+                                <path d="M30,0 L30,200 M0,100 L60,100 M15,50 L45,150 M15,150 L45,50" stroke="currentColor" strokeWidth="1" className="animate-pulse" style={{ animationDelay: '1s' }} />
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </section>
+
+            {/* Custom Animations (Global) */}
+            <style>{`
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px); }
+                    50% { transform: translateY(-20px); }
+                }
+                @keyframes gradient {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+                @keyframes draw {
+                    0% { stroke-dashoffset: 200; }
+                    100% { stroke-dashoffset: 0; }
+                }
+                @keyframes glow {
+                    0%, 100% { filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3)); }
+                    50% { filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.6)); }
+                }
+                @keyframes float-particle {
+                    0%, 100% { 
+                        transform: translateY(0px) translateX(0px); 
+                        opacity: 0;
+                    }
+                    25% {
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: translateY(-30px) translateX(10px);
+                        opacity: 0.8;
+                    }
+                    75% {
+                        opacity: 1;
+                    }
+                }
+                .animate-float { animation: float 6s ease-in-out infinite; }
+                .animate-gradient { background-size: 200% 200%; animation: gradient 3s ease infinite; }
+                .animate-draw { stroke-dasharray: 200; animation: draw 2s ease-out forwards; }
+                .animate-glow { animation: glow 3s ease-in-out infinite; }
+                .animate-float-particle { animation: float-particle 5s ease-in-out infinite; }
+            `}</style>
 
             {/* Prayer Times Section */}
             <section className="relative z-10 -mt-8 mb-20">
@@ -420,10 +750,13 @@ export function LandingPage({ events, mosqueName, mosqueAddress }: LandingPagePr
                                         {/* Image */}
                                         <div className="relative h-52 overflow-hidden bg-muted">
                                             {event.imageUrl ? (
-                                                <img
+                                                <Image
                                                     src={event.imageUrl}
                                                     alt={event.title}
+                                                    width={400}
+                                                    height={208}
                                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                    unoptimized
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center bg-muted/50">
