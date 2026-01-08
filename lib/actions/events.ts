@@ -116,19 +116,31 @@ export async function getPublishedEvents({
             return []
         }
 
+        // Get today's date in UTC to match database timezone
+        const todayUTC = new Date()
+        todayUTC.setUTCHours(0, 0, 0, 0)
+
         const events = await prisma.event.findMany({
             where: {
                 mosqueId: mosque.id,
                 isPublished: true,
                 ...(category && { category: category as any }), // Add filter if category is provided
-                // Remove strict date filtering for now to ensure visibility
-                startDate: { gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+                // Filter events that start from today (UTC) onwards
+                startDate: { gte: todayUTC }
             },
             orderBy: { startDate: 'asc' },
             take: limit
         })
 
         console.log(`Found ${events.length} published events for mosque ${mosque.name}`)
+        console.log("Today UTC:", todayUTC.toISOString())
+        if (events.length > 0) {
+            console.log("Events found:", events.map(e => ({
+                title: e.title,
+                startDate: e.startDate.toISOString(),
+                isPublished: e.isPublished
+            })))
+        }
         return events
     } catch (error) {
         console.error("Error in getPublishedEvents:", error)
